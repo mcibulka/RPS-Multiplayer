@@ -1,8 +1,12 @@
 $( document ).ready( function() {
-    var $playerImg = $( "#player-img-sel" );
+    var $playerImg = $( ".player-img-sel" );
     var $startButton = $( "#start-button" );
 
     var numCurrPlayers = 0;
+    var playerOne = false;
+    var pOneChoice = "";
+    var playerTwo = false;
+    var pTwoChoice = "";
 
     // Initialize Firebase
     var config = {
@@ -17,18 +21,13 @@ $( document ).ready( function() {
 
     var database = firebase.database();
 
-    // Using .on("value", function(snapshot)) syntax will retrieve the data
-    // from the database (both initially and every time something changes)
-    // This will then store the data inside the variable "snapshot". We could rename "snapshot" to anything.
+    // Retrieve data from database, called when application starts and every time there is an update to the database
     database.ref().on("value", function(snapshot) {
         // Then we console.log the value of snapshot
         console.log(snapshot.val());
 
-        // If Firebase has a highPrice and highBidder stored, update our client-side variables
         if (snapshot.child("numCurrPlayers").exists()) {
-            // Set the variables for highBidder/highPrice equal to the stored values.
             numCurrPlayers = snapshot.val().numCurrPlayers;
-            console.log("Current count: " + numCurrPlayers);
         }
     }, function(error) {
         console.log("The read failed: " + error.code);
@@ -42,29 +41,63 @@ $( document ).ready( function() {
         numCurrPlayers++;
 
         if (numCurrPlayers === 1) {
+            playerOne = true;
             console.log("Player 1");
 
+            $( "#player1-selectors" ).toggleClass( "is-invisible" );
+
             database.ref().set({
-                numCurrPlayers: numCurrPlayers 
+                numCurrPlayers: numCurrPlayers,
+                playerOne: playerOne,
+                pOneChoice: pOneChoice, 
+                playerTwo: playerTwo,
+                pTwoChoice: pTwoChoice 
             });
         }
         else if (numCurrPlayers === 2) {
+            playerTwo = true;
             console.log("Player 2");
 
+            $( "#player2-selectors" ).toggleClass( "is-invisible" );
+
             database.ref().update({
-                numCurrPlayers: numCurrPlayers
+                numCurrPlayers: numCurrPlayers,
+                playerTwo: playerTwo
             });
         }
     });
 
 
-    $playerImg.on("click", ".player-img", function() {
-        var name = ($(this).attr("data-name"));
+    // Player 1 pushes selection
+    // Player 2 pushes selection
 
-        $( "#player-choice" ).toggleClass( "fa-hand-" + name );
-        $( "#player-choice" ).toggleClass( "fa-camera-retro" );
-        // $( "#player-choice" ).toggleClass( "fa-camera-retro" );
-        console.log(name);
+    // Every update, look for player 1 selection and player 2 selection
+    // Compare logic
+
+
+    $playerImg.on("click", ".player-img", function() {
+        var choice = ($(this).attr("data-choice"));
+
+        if( playerOne ) {
+            $( "#player-one-choice" ).toggleClass( "fa-hand-" + choice );
+            $( "#player-one-choice" ).toggleClass( "fa-camera-retro" );
+            $( "#player1-selectors" ).toggleClass( "is-invisible" );
+
+            database.ref().update({
+                pOneChoice: choice
+            });
+        }
+        else {  // must be Player 2
+            $( "#player-two-choice" ).toggleClass( "fa-hand-" + choice );
+            $( "#player-two-choice" ).toggleClass( "fa-camera-retro" );
+            $( "#player2-selectors" ).toggleClass( "is-invisible" );
+
+            database.ref().update({
+                pTwoChoice: choice
+            });
+        }
+
+        // console.log(name);
     });
 });
 
