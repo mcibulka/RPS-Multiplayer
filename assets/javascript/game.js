@@ -1,5 +1,6 @@
 $( document ).ready( function() {
-    var $playerImg = $( '#player-img-sel' );
+    var $playerImg = $( "#player-img-sel" );
+    var $startButton = $( "#start-button" );
 
     var numCurrPlayers = 0;
 
@@ -22,7 +23,7 @@ $( document ).ready( function() {
     database.ref().on("value", function(snapshot) {
         // Then we console.log the value of snapshot
         console.log(snapshot.val());
-  
+
         // If Firebase has a highPrice and highBidder stored, update our client-side variables
         if (snapshot.child("numCurrPlayers").exists()) {
             // Set the variables for highBidder/highPrice equal to the stored values.
@@ -34,22 +35,27 @@ $( document ).ready( function() {
     });
 
 
-    numCurrPlayers++;
+    $startButton.on( "click", function() {
+        $( "#start-form" ).hide();
+        $( "#game-board" ).toggleClass( "is-invisible" );
 
-    if (numCurrPlayers === 0) {
-        console.log("Player 1");
+        numCurrPlayers++;
 
-        database.ref().set({
-            numCurrPlayers: numCurrPlayers 
-        });
-    }
-    else if (numCurrPlayers === 1) {
-        console.log("Player 2");
+        if (numCurrPlayers === 1) {
+            console.log("Player 1");
 
-        database.ref().update({
-            numCurrPlayers: numCurrPlayers
-        });
-    }
+            database.ref().set({
+                numCurrPlayers: numCurrPlayers 
+            });
+        }
+        else if (numCurrPlayers === 2) {
+            console.log("Player 2");
+
+            database.ref().update({
+                numCurrPlayers: numCurrPlayers
+            });
+        }
+    });
 
 
     $playerImg.on("click", ".player-img", function() {
