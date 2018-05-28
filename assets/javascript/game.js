@@ -5,8 +5,11 @@ $( document ).ready( function() {
     var numCurrPlayers = 0;
     var playerOne = false;
     var pOneChoice = "";
+    var pOneWins = false;
     var playerTwo = false;
     var pTwoChoice = "";
+    var pTwoWins = false;
+    var draw = false;
 
     // Initialize Firebase
     var config = {
@@ -21,6 +24,51 @@ $( document ).ready( function() {
 
     var database = firebase.database();
 
+
+    function checkWin(){
+        if(( pOneChoice === "rock" ) && ( pTwoChoice === "paper" )) {
+            pTwoWins = true;
+        }
+        else if(( pOneChoice === "rock" ) && ( pTwoChoice === "scissors" )) {
+            pOneWins = true;
+        }
+        else if(( pOneChoice === "paper" ) && ( pTwoChoice === "rock" )) {
+            pOneWins = true;
+        }
+        else if(( pOneChoice === "paper" ) && ( pTwoChoice === "scissors" )) {
+            pTwoWins = true;
+        }
+        else if(( pOneChoice === "scissors" ) && ( pTwoChoice === "rock" )) {
+            pTwoWins = true;
+        }
+        else if(( pOneChoice === "scissors" ) && ( pTwoChoice === "paper" )) {
+            pOneWins = true;
+        }
+        else {
+            draw = true;
+        }
+
+        database.ref().update({
+            pOneWins: pOneWins,
+            pTwoWins: pTwoWins,
+            draw: draw
+        });
+    }
+
+
+    function displayWin(){
+        if( pOneWins ) {
+            console.log("Player One Wins");
+        }
+        else if( pTwoWins ) {
+            console.log("Player Two Wins");
+        }
+        else {
+            console.log("Draw!");
+        }
+    }
+
+
     // Retrieve data from database, called when application starts and every time there is an update to the database
     database.ref().on("value", function(snapshot) {
         // Then we console.log the value of snapshot
@@ -28,6 +76,36 @@ $( document ).ready( function() {
 
         if (snapshot.child("numCurrPlayers").exists()) {
             numCurrPlayers = snapshot.val().numCurrPlayers;
+        }
+
+        // Player One has made their selection
+        if (snapshot.child("pOneChoice").exists()) {
+            pOneChoice = snapshot.val().pOneChoice;
+        }
+
+        // Player Two has made their selection
+        if (snapshot.child("pTwoChoice").exists()) {
+            pTwoChoice = snapshot.val().pTwoChoice;
+        }
+
+        if ((pOneChoice !== "") && (pTwoChoice !== "")) {
+            checkWin();
+        }
+
+        if (snapshot.child("pOneWins").exists()) {
+            pOneWins = snapshot.val().pOneWins;
+        }
+
+        if (snapshot.child("pTwoWins").exists()) {
+            pTwoWins = snapshot.val().pTwoWins;
+        }
+
+        if (snapshot.child("draw").exists()) {
+            draw = snapshot.val().draw;
+        }
+
+        if( pOneWins || pTwoWins || draw ){
+            displayWin();
         }
     }, function(error) {
         console.log("The read failed: " + error.code);
@@ -49,9 +127,12 @@ $( document ).ready( function() {
             database.ref().set({
                 numCurrPlayers: numCurrPlayers,
                 playerOne: playerOne,
-                pOneChoice: pOneChoice, 
+                pOneChoice: pOneChoice,
+                pOneWins: pOneWins, 
                 playerTwo: playerTwo,
-                pTwoChoice: pTwoChoice 
+                pTwoChoice: pTwoChoice,
+                pTwoWins: pTwoWins,
+                draw: draw 
             });
         }
         else if (numCurrPlayers === 2) {
@@ -66,13 +147,6 @@ $( document ).ready( function() {
             });
         }
     });
-
-
-    // Player 1 pushes selection
-    // Player 2 pushes selection
-
-    // Every update, look for player 1 selection and player 2 selection
-    // Compare logic
 
 
     $playerImg.on("click", ".player-img", function() {
@@ -96,8 +170,6 @@ $( document ).ready( function() {
                 pTwoChoice: choice
             });
         }
-
-        // console.log(name);
     });
 });
 
