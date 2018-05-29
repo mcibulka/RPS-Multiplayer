@@ -25,7 +25,7 @@
             <div class="field has-text-centered">
               <label class="label">Name</label>
               <div class="control">
-                <input class="input" type="text" placeholder="Enter">
+                <input id="player-name" class="input" type="text" placeholder="Enter">
               </div>
               <div class="level-item">
                 <div class="control">
@@ -38,9 +38,9 @@
 
         <div id="game-board" class="columns is-centered is-invisible">
           <div class="column is-4 has-text-centered">
-            <h2>Player 1</h2>
+            <h2 id="player-one-name">Player 1</h2>
             <figure class="image">
-              <i id="player-one-choice" class="fas fa-camera-retro fa-10x"></i>
+              <i id="player-one-choice" class="fas fa-camera-retro fa-10x is-invisible"></i>
             </figure>
             <div id="player1-selectors" class="level is-invisible">
               <div class="level-item player-img-sel">
@@ -57,9 +57,9 @@
             </div>
           </div>
           <div class="column is-4 has-text-centered">
-            <h2>Player 2</h2>
+            <h2 id="player-two-name">Player 2</h2>
             <figure class="image">
-              <i id="player-two-choice" class="fas fa-camera-retro fa-10x"></i>
+              <i id="player-two-choice" class="fas fa-camera-retro fa-10x is-invisible"></i>
             </figure>
             <div id="player2-selectors" class="level is-invisible">
               <div class="level-item player-img-sel">

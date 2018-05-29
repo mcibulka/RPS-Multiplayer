@@ -5,12 +5,17 @@ $( document ).ready( function() {
     var playerID = 0;
 
     var numCurrPlayers = 0;     // for future implementation to refuse connections
+
     var playerOne = false;
     var pOneChoice = "";
     var pOneWins = false;
+    var pOneName = "";
+
     var playerTwo = false;
     var pTwoChoice = "";
     var pTwoWins = false;
+    var pTwoName = "";
+
     var draw = false;
 
     // Initialize Firebase
@@ -87,6 +92,16 @@ $( document ).ready( function() {
             numCurrPlayers = snapshot.val().numCurrPlayers;
         }
 
+        if (snapshot.child("pOneName").exists()) {
+            pOneName = snapshot.val().pOneName;
+            $( "#player-one-name" ).text( pOneName );
+        }
+
+        if (snapshot.child("pTwoName").exists()) {
+            pTwoName = snapshot.val().pTwoName;
+            $( "#player-two-name" ).text( pTwoName );
+        }
+
         // Player One has made their selection
         if (snapshot.child("pOneChoice").exists()) {
             pOneChoice = snapshot.val().pOneChoice;
@@ -122,6 +137,8 @@ $( document ).ready( function() {
 
 
     $startButton.on( "click", function() {
+        event.preventDefault();
+
         $( "#start-form" ).hide();
         $( "#game-board" ).toggleClass( "is-invisible" );
 
@@ -130,6 +147,7 @@ $( document ).ready( function() {
         if (numCurrPlayers === 1) {
             playerID = 1;
             playerOne = true;
+            pOneName = $( "#player-name" ).val();
 
             $( "#player1-selectors" ).toggleClass( "is-invisible" );
 
@@ -138,23 +156,27 @@ $( document ).ready( function() {
                 numCurrPlayers: numCurrPlayers,
                 playerOne: playerOne,
                 pOneChoice: pOneChoice,
-                pOneWins: pOneWins, 
+                pOneWins: pOneWins,
+                pOneName: pOneName, 
                 playerTwo: playerTwo,
                 pTwoChoice: pTwoChoice,
                 pTwoWins: pTwoWins,
+                pTwoName: pTwoName,
                 draw: draw 
             });
         }
         else if (numCurrPlayers === 2) {
             playerID = 2;
             playerTwo = true;
+            pTwoName = $( "#player-name" ).val();
 
             $( "#player2-selectors" ).toggleClass( "is-invisible" );
 
             // Update these keys rather than overwrite data with .set()
             database.ref().update({
                 numCurrPlayers: numCurrPlayers,
-                playerTwo: playerTwo
+                playerTwo: playerTwo,
+                pTwoName: pTwoName
             });
         }
     });
@@ -166,6 +188,7 @@ $( document ).ready( function() {
         if( playerOne ) {
             $( "#player-one-choice" ).toggleClass( "fa-hand-" + choice );
             $( "#player-one-choice" ).toggleClass( "fa-camera-retro" );
+            $( "#player-one-choice" ).toggleClass( "is-invisible" );
             $( "#player1-selectors" ).toggleClass( "is-invisible" );
 
             database.ref().update({
@@ -175,6 +198,7 @@ $( document ).ready( function() {
         else {  // must be Player 2
             $( "#player-two-choice" ).toggleClass( "fa-hand-" + choice );
             $( "#player-two-choice" ).toggleClass( "fa-camera-retro" );
+            $( "#player-two-choice" ).toggleClass( "is-invisible" );
             $( "#player2-selectors" ).toggleClass( "is-invisible" );
 
             database.ref().update({
