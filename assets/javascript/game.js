@@ -2,7 +2,9 @@ $( document ).ready( function() {
     var $playerImg = $( ".player-img-sel" );
     var $startButton = $( "#start-button" );
 
-    var numCurrPlayers = 0;
+    var playerID = 0;
+
+    var numCurrPlayers = 0;     // for future implementation to refuse connections
     var playerOne = false;
     var pOneChoice = "";
     var pOneWins = false;
@@ -23,9 +25,18 @@ $( document ).ready( function() {
     firebase.initializeApp( config );
 
     var database = firebase.database();
-
+    
 
     function checkWin(){
+        if( playerID === 1 ){    // display Player Two's hand
+            $( "#player-two-choice" ).addClass( "fa-hand-" + pTwoChoice );
+            $( "#player-two-choice" ).removeClass( "fa-camera-retro" );
+        }
+        else {  // must be Player Two, display Player One's hand
+            $( "#player-one-choice" ).addClass( "fa-hand-" + pOneChoice );
+            $( "#player-one-choice" ).removeClass( "fa-camera-retro" );
+        }
+
         if(( pOneChoice === "rock" ) && ( pTwoChoice === "paper" )) {
             pTwoWins = true;
         }
@@ -71,8 +82,6 @@ $( document ).ready( function() {
 
     // Retrieve data from database, called when application starts and every time there is an update to the database
     database.ref().on("value", function(snapshot) {
-        // Then we console.log the value of snapshot
-        console.log(snapshot.val());
 
         if (snapshot.child("numCurrPlayers").exists()) {
             numCurrPlayers = snapshot.val().numCurrPlayers;
@@ -119,11 +128,12 @@ $( document ).ready( function() {
         numCurrPlayers++;
 
         if (numCurrPlayers === 1) {
+            playerID = 1;
             playerOne = true;
-            console.log("Player 1");
 
             $( "#player1-selectors" ).toggleClass( "is-invisible" );
 
+            // Create new instance of data
             database.ref().set({
                 numCurrPlayers: numCurrPlayers,
                 playerOne: playerOne,
@@ -136,11 +146,12 @@ $( document ).ready( function() {
             });
         }
         else if (numCurrPlayers === 2) {
+            playerID = 2;
             playerTwo = true;
-            console.log("Player 2");
 
             $( "#player2-selectors" ).toggleClass( "is-invisible" );
 
+            // Update these keys rather than overwrite data with .set()
             database.ref().update({
                 numCurrPlayers: numCurrPlayers,
                 playerTwo: playerTwo
